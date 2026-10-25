@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STAT101A | Week 3 Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #0A5C36; 
+            --light-green: #E8F5E9;
+            --accent-green: #2E7D32;
+            --white: #FFFFFF;
+            --text-dark: #1B3B2B;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-green);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 270px;
+            background-color: var(--primary-green);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 {
+            margin: 10px 0 0 0;
+            font-size: 1.2rem;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 5px solid transparent;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .nav-btn.active {
+            background-color: var(--white);
+            color: var(--primary-green);
+            border-left: 5px solid var(--accent-green);
+            font-weight: bold;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Grid & Cards */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--accent-green);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card i {
+            font-size: 3.5rem;
+            color: var(--primary-green);
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            margin: 0 0 10px 0;
+            color: var(--primary-green);
+        }
+
+        .card p {
+            color: #555;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        h1 {
+            color: var(--primary-green);
+            border-bottom: 2px solid var(--primary-green);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        /* Step Process */
+        .step-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 50px;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            background: var(--white);
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            color: var(--primary-green);
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .step i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: var(--accent-green);
+        }
+
+        /* Checklist */
+        .checklist {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 600px;
+            margin: 30px auto;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 1.1rem;
+        }
+
+        .check-item input {
+            width: 25px;
+            height: 25px;
+            accent-color: var(--primary-green);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-chart-column fa-3x"></i>
+            <h2>STAT101A</h2>
+            <small>Week 3 Dashboard</small>
+        </div>
+        <button class="nav-btn active" onclick="showPage('page1', this)"><i class="fa-solid fa-eye"></i> 1. Overview</button>
+        <button class="nav-btn" onclick="showPage('page2', this)"><i class="fa-solid fa-bullseye"></i> 2. Central Tendency</button>
+        <button class="nav-btn" onclick="showPage('page3', this)"><i class="fa-solid fa-arrows-left-right-to-line"></i> 3. Dispersion</button>
+        <button class="nav-btn" onclick="showPage('page4', this)"><i class="fa-solid fa-chart-area"></i> 4. Data Visualization</button>
+        <button class="nav-btn" onclick="showPage('page5', this)"><i class="fa-solid fa-scale-unbalanced"></i> 5. Assumptions</button>
+        <button class="nav-btn" onclick="showPage('page6', this)"><i class="fa-solid fa-laptop-code"></i> 6. Jamovi Lab</button>
+        <button class="nav-btn" onclick="showPage('page7', this)"><i class="fa-solid fa-clipboard-check"></i> 7. Week 3 Audit</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        
+        <!-- Page 1: Overview -->
+        <div id="page1" class="page active">
+            <h1>Descriptive Statistics</h1>
+            <div class="grid-container">
+                <div class="card">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <h3>Summarize</h3>
+                    <p>Describe basic features of the data in a study.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <h3>Visualize</h3>
+                    <p>Translate raw numbers into understandable graphics.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-stethoscope"></i>
+                    <h3>Diagnose</h3>
+                    <p>Check dataset health before running complex tests.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 2: Central Tendency -->
+        <div id="page2" class="page">
+            <h1>Measures of Central Tendency</h1>
+            <div class="grid-container">
+                <div class="card">
+                    <i class="fa-solid fa-calculator"></i>
+                    <h3>Mean</h3>
+                    <p>The mathematical average. Sensitive to extreme outliers.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-arrows-down-to-line"></i>
+                    <h3>Median</h3>
+                    <p>The exact middle value. Best for skewed data.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-users-line"></i>
+                    <h3>Mode</h3>
+                    <p>The most frequently occurring value in the dataset.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 3: Dispersion -->
+        <div id="page3" class="page">
+            <h1>Measures of Dispersion (Spread)</h1>
+            <div class="grid-container">
+                <div class="card">
+                    <i class="fa-solid fa-left-right"></i>
+                    <h3>Range</h3>
+                    <p>Difference between the highest and lowest values.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-ruler-combined"></i>
+                    <h3>Standard Deviation</h3>
+                    <p>Average distance of data points from the mean.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <h3>Variance & IQR</h3>
+                    <p>Variance is SD squared. IQR measures the middle 50%.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 4: Visualization -->
+        <div id="page4" class="page">
+            <h1>Graphical Displays</h1>
+            <div class="grid-container">
+                <div class="card">
+                    <i class="fa-solid fa-chart-column"></i>
+                    <h3>Histograms</h3>
+                    <p>Shows frequency distribution of continuous variables. Identifies shapes.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-box-open"></i>
+                    <h3>Boxplots</h3>
+                    <p>Displays median, quartiles, and flags potential outliers visually.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 5: Assumptions -->
+        <div id="page5" class="page">
+            <h1>Checking Assumptions</h1>
+            <div class="grid-container">
+                <div class="card">
+                    <i class="fa-solid fa-bell"></i>
+                    <h3>Normality</h3>
+                    <p>Is the data shaped like a bell curve? Crucial for parametric tests.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-scale-unbalanced"></i>
+                    <h3>Skewness</h3>
+                    <p>Measures asymmetry. Left-skewed vs. Right-skewed data tails.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-vial-circle-check"></i>
+                    <h3>Shapiro-Wilk Test</h3>
+                    <p>Statistical test for normality. (p > 0.05 indicates normal distribution).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 6: Jamovi Lab -->
+        <div id="page6" class="page">
+            <h1>Jamovi Execution Workflow</h1>
+            <div class="step-container">
+                <div class="step">
+                    <i class="fa-solid fa-folder-tree"></i>
+                    Exploration Tab
+                    <small style="font-weight: normal; margin-top: 5px;">Select 'Descriptives'</small>
+                </div>
+                <i class="fa-solid fa-angle-right arrow"></i>
+                <div class="step">
+                    <i class="fa-solid fa-check-square"></i>
+                    Toggle Options
+                    <small style="font-weight: normal; margin-top: 5px;">Mean, SD, Skewness, S-W</small>
+                </div>
+                <i class="fa-solid fa-angle-right arrow"></i>
+                <div class="step">
+                    <i class="fa-solid fa-image"></i>
+                    Generate Plots
+                    <small style="font-weight: normal; margin-top: 5px;">Histograms & Boxplots</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 7: Week 3 Audit -->
+        <div id="page7" class="page">
+            <h1>Week 3 Task Audit</h1>
+            <div class="checklist">
+                <label class="check-item">
+                    <input type="checkbox"> Generated descriptive summary statistics table
+                </label>
+                <label class="check-item">
+                    <input type="checkbox"> Created and interpreted a Histogram
+                </label>
+                <label class="check-item">
+                    <input type="checkbox"> Created and interpreted a Boxplot
+                </label>
+                <label class="check-item">
+                    <input type="checkbox"> Checked Skewness and Shapiro-Wilk outputs
+                </label>
+                <label class="check-item">
+                    <input type="checkbox"> Drafted Normality assessment write-up
+                </label>
+                <label class="check-item">
+                    <input type="checkbox"> <b>Workbook Task 1 Submission</b> (Descriptive report rubric)
+                </label>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showPage(pageId, btnElement) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(pageId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+    </script>
+</body>
+</html>
