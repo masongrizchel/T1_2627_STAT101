@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STAT101A | Week 8 Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #0A5C36; 
+            --light-green: #E8F5E9;
+            --accent-green: #2E7D32;
+            --white: #FFFFFF;
+            --text-dark: #1B3B2B;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-green);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 270px;
+            background-color: var(--primary-green);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 {
+            margin: 10px 0 0 0;
+            font-size: 1.2rem;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 5px solid transparent;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .nav-btn.active {
+            background-color: var(--white);
+            color: var(--primary-green);
+            border-left: 5px solid var(--accent-green);
+            font-weight: bold;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Grid & Cards */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--accent-green);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card i {
+            font-size: 3.5rem;
+            color: var(--primary-green);
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            margin: 0 0 10px 0;
+            color: var(--primary-green);
+        }
+
+        .card p {
+            color: #555;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        h1 {
+            color: var(--primary-green);
+            border-bottom: 2px solid var(--primary-green);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        /* Checklist */
+        .checklist {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 700px;
+            margin: 30px auto;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 1.1rem;
+        }
+
+        .check-item input {
+            width: 25px;
+            height: 25px;
+            accent-color: var(--primary-green);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-chart-line fa-3x"></i>
+            <h2>STAT101A</h2>
+            <small>Week 8 Dashboard</small>
+        </div>
+        <button class="nav-btn active" onclick="showPage('page1', this)"><i class="fa-solid fa-link"></i> 1. Correlation Concepts</button>
+        <button class="nav-btn" onclick="showPage('page2', this)"><i class="fa-solid fa-chart-area"></i> 2. Pearson's r</button>
+        <button class="nav-btn" onclick="showPage('page3', this)"><i class="fa-solid fa-arrow-up-9-1"></i> 3. Spearman's Rank</button>
+        <button class="nav-btn" onclick="showPage('page4', this)"><i class="fa-solid fa-arrow-trend-up"></i> 4. Linear Regression</button>
+        <button class="nav-btn" onclick="showPage('page5', this)"><i class="fa-solid fa-magnifying-glass-chart"></i> 5. Assumption Checks</button>
+        <button class="nav-btn" onclick="showPage('page6', this)"><i class="fa-solid fa-laptop"></i> 6. Jamovi Labs</button>
+        <button class="nav-btn" onclick="showPage('page7', this)"><i class="fa-solid fa-list-check"></i> 7. Week 8 Audit</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        
+        <!-- Page 1: Correlation Concepts -->
+        <div id="page1" class="page active">
+            <h1>Bivariate Relationships</h1>
+            <div class="grid-container">
+                <div class="card">
+                    <i class="fa-solid fa-arrows-left-right"></i>
+                    <h3>Direction</h3>
+                    <p>Evaluating whether variables move in the same (positive) or opposite (negative) directions.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-weight-hanging"></i>
+                    <h3>Strength</h3>
+                    <p>Measuring the magnitude of the relationship on a scale from -1.0 to +1.0.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <h3>Causation Trap</h3>
+                    <p>Reinforcing the principle that correlation does not establish a cause-and-effect relationship.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 2: Pearson's r -->
+        <div id="page2" class="page">
+            <h1>Pearson Correlation Coefficient</h1>
+            <div class="grid-container">
+                <div class="card">
+                    <i class="fa-solid fa-ruler"></i>
+                    <h3>Continuous Data</h3>
+                    <p>Both variables must be measured at the continuous (interval or ratio) level.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <h3>Linearity</h3>
+                    <p>The relationship between the variables must form a linear trajectory on a scatterplot.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-bell"></i>
+                    <h3>Parametric</h3>
+                    <p>Assumes bivariate normality and the absence of significant outliers.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 3: Spearman's Rank -->
+        <div id="page3" class="page">
+            <h1>Spearman's Rank-Order Correlation</h1>
+            <div class="grid-container">
+                <div class="card">
+                    <i class="fa-solid fa-list-ol"></i>
+                    <h3>Ordinal Data</h3>
+                    <p>The non-parametric alternative used when one or both variables are ranked data.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <h3>Monotonicity</h3>
+                    <p>Evaluates variables that move together but not necessarily at a constant linear rate.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <h3>Robustness</h3>
+                    <p>Highly resistant to outliers and does not require normal distribution assumptions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 4: Linear Regression -->
+        <div id="page4" class="page">
+            <h1>Simple Linear Regression</h1>
+            <div class="grid-container">
+                <div class="card">
+                    <i class="fa-solid fa-crystal-ball"></i>
+                    <h3>Predictive Modeling</h3>
+                    <p>Using a known independent predictor variable to forecast an unknown dependent outcome.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-calculator"></i>
+                    <h3>The Equation</h3>
+                    <p>Establishing the line of best fit using the formula: Y = a + bX.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-percent"></i>
+                    <h3>R-Squared</h3>
+                    <p>Interpreting the coefficient of determination to understand explained variance.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 5: Assumption Checks -->
+        <div id="page5" class="page">
+            <h1>Visual Diagnostics & Assumptions</h1>
+            <div class="grid-container">
+                <div class="card">
+                    <i class="fa-solid fa-braille"></i>
+                    <h3>Scatterplots</h3>
+                    <p>Generating visual plots in Jamovi prior to executing correlational tests.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-expand"></i>
+                    <h3>Homoscedasticity</h3>
+                    <p>Checking that the spread of residuals remains roughly constant across the regression line.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 6: Jamovi Labs -->
+        <div id="page6" class="page">
+            <h1>Problem-Based Lab Exercises</h1>
+            <div class="grid-container">
+                <div class="card">
+                    <i class="fa-solid fa-laptop-code"></i>
+                    <h3>Correlation Matrices</h3>
+                    <p>Executing Pearson and Spearman tests simultaneously to compare output tables.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <h3>Model Interpretation</h3>
+                    <p>Translating regression coefficients and R-squared values into APA reporting.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 7: Week 8 Audit -->
+        <div id="page7" class="page">
+            <h1>Week 8 Task Audit</h1>
+            <div class="checklist">
+                <label class="check-item">
+                    <input type="checkbox"> Generated scatterplots to verify linear assumptions
+                </label>
+                <label class="check-item">
+                    <input type="checkbox"> Executed Pearson's r for continuous bivariate datasets
+                </label>
+                <label class="check-item">
+                    <input type="checkbox"> Executed Spearman's Rank for ordinal/non-parametric datasets
+                </label>
+                <label class="check-item">
+                    <input type="checkbox"> Formulated Simple Linear Regression models
+                </label>
+                <label class="check-item">
+                    <input type="checkbox"> Translated Correlation and Regression outputs into APA formatting
+                </label>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showPage(pageId, btnElement) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(pageId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+    </script>
+</body>
+</html>
