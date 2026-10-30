@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STAT101A | VetMed Statistical Selection & Graphing Matrix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #0A5C36; 
+            --light-green: #E8F5E9;
+            --accent-green: #2E7D32;
+            --danger-red: #C62828;
+            --white: #FFFFFF;
+            --text-dark: #1B3B2B;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-green);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 250px;
+            background-color: var(--primary-green);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 {
+            margin: 10px 0 0 0;
+            font-size: 1.2rem;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 5px solid transparent;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .nav-btn.active {
+            background-color: var(--white);
+            color: var(--primary-green);
+            border-left: 5px solid var(--accent-green);
+            font-weight: bold;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: var(--primary-green);
+            border-bottom: 2px solid var(--primary-green);
+            padding-bottom: 10px;
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        /* Matrix Cards */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tool-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--accent-green);
+        }
+
+        .tool-card h3 {
+            margin: 0 0 15px 0;
+            color: var(--primary-green);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .use-case {
+            margin-bottom: 15px;
+        }
+
+        .use-case h4 {
+            color: var(--accent-green);
+            margin: 0 0 5px 0;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .do-not-use h4 {
+            color: var(--danger-red);
+            margin: 0 0 5px 0;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tool-card ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 0.9rem;
+            color: #444;
+        }
+
+        .tool-card li {
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .badge-cat { background: #e3f2fd; color: #1565c0; }
+        .badge-con { background: #f3e5f5; color: #7b1fa2; }
+        .badge-vis { background: #fff3e0; color: #e65100; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-paw fa-3x"></i>
+            <h2>STAT101A</h2>
+            <small>VetMed Test Matrix</small>
+        </div>
+        <button class="nav-btn active" onclick="showPage('page1', this)"><i class="fa-solid fa-code-compare"></i> Comparing 2 Groups</button>
+        <button class="nav-btn" onclick="showPage('page2', this)"><i class="fa-solid fa-layer-group"></i> Comparing 3+ Groups</button>
+        <button class="nav-btn" onclick="showPage('page3', this)"><i class="fa-solid fa-chart-pie"></i> Categorical Data</button>
+        <button class="nav-btn" onclick="showPage('page4', this)"><i class="fa-solid fa-scale-unbalanced"></i> Non-Parametric</button>
+        <button class="nav-btn" onclick="showPage('page5', this)"><i class="fa-solid fa-image"></i> Data Visualization</button>
+    </div>
+
+    <div class="main-content">
+        
+        <!-- Page 1: 2 Groups -->
+        <div id="page1" class="page active">
+            <h1>Comparing 2 Distinct Groups</h1>
+            <div class="matrix-grid">
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-t"></i> Independent Samples t-test</h3>
+                    <div>
+                        <span class="badge badge-cat">1 Nominal IV (2 Levels)</span>
+                        <span class="badge badge-con">1 Continuous DV</span>
+                    </div>
+                    <br>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-check-circle"></i> WHEN TO USE:</h4>
+                        <ul>
+                            <li><strong>VetMed Example:</strong> Comparing the mean recovery time (in hours) between dogs that received standard surgery versus laser surgery.</li>
+                            <li>Comparing the means of two unrelated, separate groups (e.g., Male vs. Female, Treatment vs. Control).</li>
+                            <li>Dependent variable is Continuous (Interval/Ratio).</li>
+                        </ul>
+                    </div>
+                    <div class="do-not-use">
+                        <h4><i class="fa-solid fa-xmark-circle"></i> DO NOT USE WHEN:</h4>
+                        <ul>
+                            <li>You have 3 or more surgical protocols (Use ANOVA).</li>
+                            <li>The dependent variable is Ordinal (e.g., Lameness Score 1-5).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-link"></i> Paired Samples t-test</h3>
+                    <div>
+                        <span class="badge badge-cat">1 Nominal IV (Time/Condition)</span>
+                        <span class="badge badge-con">1 Continuous DV</span>
+                    </div>
+                    <br>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-check-circle"></i> WHEN TO USE:</h4>
+                        <ul>
+                            <li><strong>VetMed Example:</strong> Comparing a canine patient's systolic blood pressure exactly 1 hour <em>before</em> and 1 hour <em>after</em> administering a hypertensive drug.</li>
+                            <li>Comparing means from the exactly same subjects measured twice.</li>
+                        </ul>
+                    </div>
+                    <div class="do-not-use">
+                        <h4><i class="fa-solid fa-xmark-circle"></i> DO NOT USE WHEN:</h4>
+                        <ul>
+                            <li>The two groups consist of completely different animals.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 2: 3+ Groups -->
+        <div id="page2" class="page">
+            <h1>Comparing 3 or More Groups</h1>
+            <div class="matrix-grid">
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-chart-bar"></i> One-Way ANOVA</h3>
+                    <div>
+                        <span class="badge badge-cat">1 Nominal IV (3+ Levels)</span>
+                        <span class="badge badge-con">1 Continuous DV</span>
+                    </div>
+                    <br>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-check-circle"></i> WHEN TO USE:</h4>
+                        <ul>
+                            <li><strong>VetMed Example:</strong> Comparing the mean weight gain (in kg) of piglets fed three different commercial feeds (Diet A vs. Diet B vs. Diet C).</li>
+                            <li>Data is normally distributed within each group.</li>
+                            <li>When you need Tukey Post-Hoc tests to find out exactly *which* diet was superior.</li>
+                        </ul>
+                    </div>
+                    <div class="do-not-use">
+                        <h4><i class="fa-solid fa-xmark-circle"></i> DO NOT USE WHEN:</h4>
+                        <ul>
+                            <li>The dependent variable is an Ordinal rank (Use Kruskal-Wallis).</li>
+                            <li>You have two independent variables (e.g., Diet AND Breed) — Use Two-Way ANOVA instead.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 3: Categorical -->
+        <div id="page3" class="page">
+            <h1>Analyzing Frequencies & Proportions</h1>
+            <div class="matrix-grid">
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-table-cells"></i> Chi-Square Test of Independence</h3>
+                    <div>
+                        <span class="badge badge-cat">2 Categorical Variables (Nominal/Ordinal)</span>
+                    </div>
+                    <br>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-check-circle"></i> WHEN TO USE:</h4>
+                        <ul>
+                            <li><strong>VetMed Example:</strong> Determining if there is an association between the retail source (Wet Market vs. Supermarket) and the presence of <em>Salmonella</em> (Positive vs. Negative) in raw chicken meat.</li>
+                            <li>Both variables are just groups or categories, no continuous measurements are taken.</li>
+                        </ul>
+                    </div>
+                    <div class="do-not-use">
+                        <h4><i class="fa-solid fa-xmark-circle"></i> DO NOT USE WHEN:</h4>
+                        <ul>
+                            <li>You have a continuous dependent variable (e.g., Bacterial count in CFU/g).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-chart-pie"></i> Chi-Square Goodness of Fit</h3>
+                    <div>
+                        <span class="badge badge-cat">1 Categorical Variable</span>
+                    </div>
+                    <br>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-check-circle"></i> WHEN TO USE:</h4>
+                        <ul>
+                            <li><strong>VetMed Example:</strong> Comparing the *observed* frequency of Feline Lower Urinary Tract Disease (FLUTD) cases across four seasons to see if they deviate from an *expected* equal distribution (25% per season).</li>
+                        </ul>
+                    </div>
+                    <div class="do-not-use">
+                        <h4><i class="fa-solid fa-xmark-circle"></i> DO NOT USE WHEN:</h4>
+                        <ul>
+                            <li>You are testing for an association between *two* different variables (like Season AND Neuter Status).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 4: Non-Parametric -->
+        <div id="page4" class="page">
+            <h1>Non-Parametric Alternatives (Data Violations)</h1>
+            <div class="matrix-grid">
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-scale-unbalanced"></i> Mann-Whitney U Test</h3>
+                    <div>
+                        <span class="badge badge-cat">Alternative to Independent t-test</span>
+                    </div>
+                    <br>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-check-circle"></i> WHEN TO USE:</h4>
+                        <ul>
+                            <li><strong>VetMed Example:</strong> Comparing the Body Condition Score (1-9 ordinal scale) of adult dogs fed a homemade diet versus those fed a commercial diet.</li>
+                            <li>The continuous dependent variable heavily violates the Shapiro-Wilk normality assumption.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-layer-group"></i> Kruskal-Wallis H Test</h3>
+                    <div>
+                        <span class="badge badge-cat">Alternative to One-Way ANOVA</span>
+                    </div>
+                    <br>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-check-circle"></i> WHEN TO USE:</h4>
+                        <ul>
+                            <li><strong>VetMed Example:</strong> Comparing Lameness Scores (0 to 5) in horses treated with three different analgesic medications (Meloxicam, Carprofen, Placebo).</li>
+                            <li>Comparing 3 or more independent groups with ordinal or severely skewed data.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 5: Data Visualization -->
+        <div id="page5" class="page">
+            <h1>Data Visualization Selection</h1>
+            <div class="matrix-grid">
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-chart-column"></i> Bar Charts (Count Plots)</h3>
+                    <div>
+                        <span class="badge badge-vis">Best for Categorical Data</span>
+                    </div>
+                    <br>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-check-circle"></i> WHEN TO USE:</h4>
+                        <ul>
+                            <li><strong>VetMed Example:</strong> Visualizing the total count of positive vs. negative Parvovirus cases observed at three different clinic locations.</li>
+                            <li>Visually representing data from Chi-Square tests.</li>
+                        </ul>
+                    </div>
+                    <div class="do-not-use">
+                        <h4><i class="fa-solid fa-xmark-circle"></i> DO NOT USE WHEN:</h4>
+                        <ul>
+                            <li>Attempting to show the distribution spread or skewness of a single continuous variable (Use a Histogram).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-square-poll-vertical"></i> Histograms</h3>
+                    <div>
+                        <span class="badge badge-vis">Best for Single Continuous Variables</span>
+                    </div>
+                    <br>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-check-circle"></i> WHEN TO USE:</h4>
+                        <ul>
+                            <li><strong>VetMed Example:</strong> Assessing the bell-curve distribution and skewness of hemoglobin levels (g/dL) across a population of neonatal piglets.</li>
+                            <li>Checking the normality assumption visually prior to a t-test or ANOVA.</li>
+                        </ul>
+                    </div>
+                    <div class="do-not-use">
+                        <h4><i class="fa-solid fa-xmark-circle"></i> DO NOT USE WHEN:</h4>
+                        <ul>
+                            <li>Comparing differences between multiple distinct groups (Use a Box Plot).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-box"></i> Box Plots (Box and Whisker)</h3>
+                    <div>
+                        <span class="badge badge-vis">Best for Group Comparisons</span>
+                    </div>
+                    <br>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-check-circle"></i> WHEN TO USE:</h4>
+                        <ul>
+                            <li><strong>VetMed Example:</strong> Comparing the spread of recovery times (hours) across three different abdominal surgical techniques, immediately revealing medians and outliers.</li>
+                            <li>Perfect companion visual for Independent t-tests, ANOVAs, and their non-parametric equivalents.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-braille"></i> Scatterplots</h3>
+                    <div>
+                        <span class="badge badge-vis">Best for Continuous vs. Continuous</span>
+                    </div>
+                    <br>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-check-circle"></i> WHEN TO USE:</h4>
+                        <ul>
+                            <li><strong>VetMed Example:</strong> Plotting a dog's age (in years) against its liver enzyme levels (ALT in U/L) to observe if levels linearly increase as the dog gets older.</li>
+                            <li>Visually checking for linear relationships prior to running Pearson's Correlation or Linear Regression.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showPage(pageId, btnElement) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(pageId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+    </script>
+</body>
+</html>
