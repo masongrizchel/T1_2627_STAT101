@@ -1,1 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STAT101A | Week 4 Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #0A5C36; 
+            --light-green: #E8F5E9;
+            --accent-green: #2E7D32;
+            --white: #FFFFFF;
+            --text-dark: #1B3B2B;
+        }
 
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-green);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 270px;
+            background-color: var(--primary-green);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 {
+            margin: 10px 0 0 0;
+            font-size: 1.2rem;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 5px solid transparent;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .nav-btn.active {
+            background-color: var(--white);
+            color: var(--primary-green);
+            border-left: 5px solid var(--accent-green);
+            font-weight: bold;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Grid & Cards */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--accent-green);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card i {
+            font-size: 3.5rem;
+            color: var(--primary-green);
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            margin: 0 0 10px 0;
+            color: var(--primary-green);
+        }
+
+        .card p {
+            color: #555;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        h1 {
+            color: var(--primary-green);
+            border-bottom: 2px solid var(--primary-green);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        /* Step Process / Flowchart */
+        .step-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 50px;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            background: var(--white);
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            color: var(--primary-green);
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .step i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: var(--accent-green);
+        }
+
+        /* Checklist */
+        .checklist {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 600px;
+            margin: 30px auto;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 1.1rem;
+        }
+
+        .check-item input {
+            width: 25px;
+            height: 25px;
+            accent-color: var(--primary-green);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-code-branch fa-3x"></i>
+            <h2>STAT101A</h2>
+            <small>Week 4 Dashboard</small>
+        </div>
+        <button class="nav-btn active" onclick="showPage('page1', this)"><i class="fa-solid fa-map"></i> 1. Selection Logic</button>
+        <button class="nav-btn" onclick="showPage('page2', this)"><i class="fa-solid fa-scale-balanced"></i> 2. Hypotheses</button>
+        <button class="nav-btn" onclick="showPage('page3', this)"><i class="fa-solid fa-filter"></i> 3. Data Criteria</button>
+        <button class="nav-btn" onclick="showPage('page4', this)"><i class="fa-solid fa-not-equal"></i> 4. Means Tests</button>
+        <button class="nav-btn" onclick="showPage('page5', this)"><i class="fa-solid fa-link"></i> 5. Association Tests</button>
+        <button class="nav-btn" onclick="showPage('page6', this)"><i class="fa-solid fa-people-group"></i> 6. Flowchart Workshop</button>
+        <button class="nav-btn" onclick="showPage('page7', this)"><i class="fa-solid fa-list-check"></i> 7. Week 4 Audit</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        
+        <!-- Page 1: Overview -->
+        <div id="page1" class="page active">
+            <h1>Statistical Test Selection Logic</h1>
+            <div class="grid-container">
+                <div class="card">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <h3>1. Ask the Question</h3>
+                    <p>Are you comparing groups or looking for relationships?</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <h3>2. Check Variables</h3>
+                    <p>Identify dependent and independent variable types.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-route"></i>
+                    <h3>3. Trace the Tree</h3>
+                    <p>Use the decision tree framework to find the right test.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 2: Hypotheses -->
+        <div id="page2" class="page">
+            <h1>Formulating Hypotheses (H<sub>0</sub> vs. H<sub>1</sub>)</h1>
+            <div class="grid-container">
+                <div class="card">
+                    <i class="fa-regular fa-face-meh"></i>
+                    <h3>Null Hypothesis (H<sub>0</sub>)</h3>
+                    <p>Assumes NO effect, NO difference, or NO relationship.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-bolt"></i>
+                    <h3>Alternative (H<sub>1</sub>)</h3>
+                    <p>Assumes a significant effect, difference, or relationship exists.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 3: Criteria -->
+        <div id="page3" class="page">
+            <h1>Parametric vs. Non-parametric Criteria</h1>
+            <div class="grid-container">
+                <div class="card">
+                    <i class="fa-solid fa-bell"></i>
+                    <h3>Parametric</h3>
+                    <p>Requires continuous data, normal distribution, and homogeneity of variance.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-wave-square"></i>
+                    <h3>Non-parametric</h3>
+                    <p>Used for ordinal data, skewed distributions, or small sample sizes.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 4: T-test and F-test -->
+        <div id="page4" class="page">
+            <h1>Comparing Means: t-test & F-test</h1>
+            <div class="step-container">
+                <div class="step">
+                    <i class="fa-solid fa-arrows-split-up-and-left"></i>
+                    t-test
+                    <small style="font-weight: normal; margin-top: 5px;">Comparing 2 Groups</small>
+                </div>
+                <i class="fa-solid fa-angle-right arrow"></i>
+                <div class="step">
+                    <i class="fa-solid fa-chart-bar"></i>
+                    F-test (ANOVA)
+                    <small style="font-weight: normal; margin-top: 5px;">Comparing 3+ Groups</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 5: Pearson and Chi-square -->
+        <div id="page5" class="page">
+            <h1>Associations: Pearson r & Chi-Square</h1>
+            <div class="step-container">
+                <div class="step">
+                    <i class="fa-solid fa-chart-line"></i>
+                    Pearson r
+                    <small style="font-weight: normal; margin-top: 5px;">Continuous vs. Continuous</small>
+                </div>
+                <i class="fa-solid fa-angle-right arrow"></i>
+                <div class="step">
+                    <i class="fa-solid fa-border-all"></i>
+                    Chi-Square
+                    <small style="font-weight: normal; margin-top: 5px;">Categorical vs. Categorical</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 6: Workshop -->
+        <div id="page6" class="page">
+            <h1>Case Study Decision Tree Workshop</h1>
+            <div class="grid-container">
+                <div class="card">
+                    <i class="fa-solid fa-users-gear"></i>
+                    <h3>Group Diagnostic</h3>
+                    <p>Analyze clinical scenarios as a team.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-sitemap"></i>
+                    <h3>Map Flowcharts</h3>
+                    <p>Execute decision flowchart mapping exercises.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-file-pen"></i>
+                    <h3>Identify Tests</h3>
+                    <p>Complete the test identification worksheet.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 7: Week 4 Audit -->
+        <div id="page7" class="page">
+            <h1>Week 4 Task Audit</h1>
+            <div class="checklist">
+                <label class="check-item">
+                    <input type="checkbox"> Formulated valid H<sub>0</sub> and H<sub>1</sub> statements
+                </label>
+                <label class="check-item">
+                    <input type="checkbox"> Assessed parametric vs. non-parametric criteria
+                </label>
+                <label class="check-item">
+                    <input type="checkbox"> Participated in group diagnostic practice
+                </label>
+                <label class="check-item">
+                    <input type="checkbox"> Submitted test identification worksheet
+                </label>
+                <label class="check-item">
+                    <input type="checkbox"> Completed in-class decision tree quick quiz
+                </label>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showPage(pageId, btnElement) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(pageId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+    </script>
+</body>
+</html>
