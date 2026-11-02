@@ -1,1 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STAT101A | Week 9 Advanced Regression Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #0A5C36; 
+            --light-green: #E8F5E9;
+            --accent-green: #2E7D32;
+            --danger-red: #C62828;
+            --white: #FFFFFF;
+            --text-dark: #1B3B2B;
+            --highlight-blue: #1565C0;
+            --highlight-orange: #E65100;
+        }
 
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-green);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary-green);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 {
+            margin: 10px 0 0 0;
+            font-size: 1.2rem;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 5px solid transparent;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .nav-btn.active {
+            background-color: var(--white);
+            color: var(--primary-green);
+            border-left: 5px solid var(--accent-green);
+            font-weight: bold;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: var(--primary-green);
+            border-bottom: 2px solid var(--primary-green);
+            padding-bottom: 10px;
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        /* Matrix Cards */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tool-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--accent-green);
+        }
+
+        .tool-card h3 {
+            margin: 0 0 15px 0;
+            color: var(--primary-green);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .use-case {
+            margin-bottom: 15px;
+        }
+
+        .use-case h4 {
+            color: var(--accent-green);
+            margin: 0 0 5px 0;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .warning-case h4 {
+            color: var(--highlight-orange);
+            margin: 0 0 5px 0;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .do-not-use h4 {
+            color: var(--danger-red);
+            margin: 0 0 5px 0;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tool-card ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 0.9rem;
+            color: #444;
+        }
+
+        .tool-card li {
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-right: 5px;
+            margin-bottom: 8px;
+        }
+        .badge-iv { background: #e3f2fd; color: #1565c0; }
+        .badge-dv-con { background: #f3e5f5; color: #7b1fa2; }
+        .badge-dv-cat { background: #ffebee; color: #c62828; }
+        .badge-jamovi { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-chart-line fa-3x"></i>
+            <h2>STAT101A | Week 9</h2>
+            <small>Predictive Modeling</small>
+        </div>
+        <button class="nav-btn active" onclick="showPage('page1', this)"><i class="fa-solid fa-code-branch"></i> Regression Overview</button>
+        <button class="nav-btn" onclick="showPage('page2', this)"><i class="fa-solid fa-chart-area"></i> Multiple Linear</button>
+        <button class="nav-btn" onclick="showPage('page3', this)"><i class="fa-solid fa-toggle-on"></i> Binary Logistic</button>
+        <button class="nav-btn" onclick="showPage('page4', this)"><i class="fa-solid fa-stethoscope"></i> Model Diagnostics</button>
+    </div>
+
+    <div class="main-content">
+        
+        <!-- Page 1: Overview -->
+        <div id="page1" class="page active">
+            <h1>Selecting the Right Regression Model</h1>
+            <p>While Week 8 focused on comparing just two variables (Correlation & Simple Linear Regression), real-world veterinary medicine involves predicting outcomes based on multiple compounding risk factors.</p>
+            <div class="matrix-grid">
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-ruler"></i> The Dependent Variable (Outcome) dictates the model.</h3>
+                    <div class="use-case">
+                        <ul>
+                            <li><strong>Continuous Outcome:</strong> (e.g., Blood Pressure, Weight, Clearance Time) &rarr; Use <strong>Linear Regression</strong>.</li>
+                            <li><strong>Categorical Binary Outcome:</strong> (e.g., Disease Present vs. Absent, Dead vs. Alive) &rarr; Use <strong>Logistic Regression</strong>.</li>
+                            <li><strong>1 Predictor:</strong> Simple Regression (Week 8).</li>
+                            <li><strong>2+ Predictors:</strong> Multiple Regression (Week 9).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 2: Multiple Linear -->
+        <div id="page2" class="page">
+            <h1>Multiple Linear Regression</h1>
+            <div class="matrix-grid">
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-chart-area"></i> Predicting Continuous Outcomes</h3>
+                    <div>
+                        <span class="badge badge-iv">2+ Predictor Variables (IVs)</span>
+                        <span class="badge badge-dv-con">1 Continuous Outcome (DV)</span>
+                    </div>
+                    <br>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-paw"></i> VETMED EXAMPLE:</h4>
+                        <p style="font-size: 0.9rem; margin-top: 0; color: #444;">Predicting <strong>Anesthesia Recovery Time (in minutes)</strong> based on the combined effects of the patient's <strong>Weight (kg)</strong>, <strong>Age (years)</strong>, and <strong>Liver Enzyme Levels (ALT in U/L)</strong>.</p>
+                    </div>
+                    <div class="warning-case">
+                        <h4><i class="fa-solid fa-gears"></i> JAMOVI EXECUTION:</h4>
+                        <ul>
+                            <li><strong>Regression > Linear Regression</strong></li>
+                            <li>Dependent Variable: The Continuous Outcome.</li>
+                            <li>Covariates: Continuous predictors.</li>
+                            <li>Factors: Categorical predictors (e.g., Sex, Breed).</li>
+                        </ul>
+                    </div>
+                    <div class="do-not-use">
+                        <h4><i class="fa-solid fa-xmark-circle"></i> DO NOT USE WHEN:</h4>
+                        <ul>
+                            <li>The outcome you are trying to predict is a "Yes or No" result (e.g., Will the patient survive?).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 3: Logistic -->
+        <div id="page3" class="page">
+            <h1>Binary Logistic Regression</h1>
+            <div class="matrix-grid">
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-toggle-on"></i> Predicting Probabilities & Risks</h3>
+                    <div>
+                        <span class="badge badge-iv">1 or More Predictor Variables (IVs)</span>
+                        <span class="badge badge-dv-cat">1 Binary Outcome (DV) (Yes/No)</span>
+                    </div>
+                    <br>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-paw"></i> VETMED EXAMPLE:</h4>
+                        <p style="font-size: 0.9rem; margin-top: 0; color: #444;">Predicting the likelihood of a horse developing <strong>Equine Gastric Ulcer Syndrome (EGUS) (Present/Absent)</strong> based on their <strong>Training Intensity (hours/week)</strong>, <strong>NSAID Administration (Yes/No)</strong>, and <strong>Forage Diet Percentage</strong>.</p>
+                    </div>
+                    <div class="warning-case">
+                        <h4><i class="fa-solid fa-gears"></i> JAMOVI EXECUTION:</h4>
+                        <ul>
+                            <li><strong>Regression > 2 Outcomes Binomial (Logistic)</strong></li>
+                            <li>Dependent Variable: The Binary Outcome (Ensure level 1 is the "event" you want to predict).</li>
+                            <li>Covariates/Factors: Your continuous and categorical predictors.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 4: Diagnostics -->
+        <div id="page4" class="page">
+            <h1>Model Evaluation & Diagnostics</h1>
+            <div class="matrix-grid">
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-magnifying-glass-chart"></i> Key Metrics to Check</h3>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-bullseye"></i> 1. Model Fit (R&sup2;)</h4>
+                        <ul>
+                            <li>Found in Linear Regression. Represents the percentage of variance in the Dependent Variable explained by your model. (e.g., R&sup2; = 0.75 means 75% of anesthesia recovery time is explained by Weight, Age, and ALT).</li>
+                        </ul>
+                    </div>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-triangle-exclamation"></i> 2. Multicollinearity (VIF)</h4>
+                        <ul>
+                            <li><strong>Rule:</strong> Predictor variables should not be highly correlated with "each other".</li>
+                            <li>Check the <strong>Collinearity Statistics</strong> box in Jamovi.</li>
+                            <li>If VIF (Variance Inflation Factor) is <strong>> 5.0</strong>, you have a multicollinearity problem. (e.g., Including both "Weight in kg" and "Weight in lbs" as separate predictors).</li>
+                        </ul>
+                    </div>
+                     <div class="use-case">
+                        <h4><i class="fa-solid fa-scale-balanced"></i> 3. Odds Ratios (OR)</h4>
+                        <ul>
+                            <li>Found in Logistic Regression. Shows the change in odds of the outcome occurring.</li>
+                            <li><strong>OR > 1:</strong> Increases the risk (e.g., NSAID use increases ulcer risk).</li>
+                            <li><strong>OR < 1:</strong> Decreases the risk (Protective factor).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showPage(pageId, btnElement) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(pageId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+    </script>
+</body>
+</html>
