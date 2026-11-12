@@ -1,1 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STAT101A | Week 11 Capstone Analytics Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #0A5C36; 
+            --light-green: #E8F5E9;
+            --accent-green: #2E7D32;
+            --danger-red: #C62828;
+            --white: #FFFFFF;
+            --text-dark: #1B3B2B;
+            --highlight-blue: #1565C0;
+            --highlight-orange: #E65100;
+        }
 
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-green);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 270px;
+            background-color: var(--primary-green);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 {
+            margin: 10px 0 0 0;
+            font-size: 1.2rem;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 5px solid transparent;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .nav-btn.active {
+            background-color: var(--white);
+            color: var(--primary-green);
+            border-left: 5px solid var(--accent-green);
+            font-weight: bold;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: var(--primary-green);
+            border-bottom: 2px solid var(--primary-green);
+            padding-bottom: 10px;
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        /* Matrix Cards */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tool-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--accent-green);
+        }
+
+        .tool-card h3 {
+            margin: 0 0 15px 0;
+            color: var(--primary-green);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .use-case {
+            margin-bottom: 15px;
+        }
+
+        .use-case h4 {
+            color: var(--accent-green);
+            margin: 0 0 5px 0;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .warning-case h4 {
+            color: var(--highlight-orange);
+            margin: 0 0 5px 0;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tool-card ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 0.9rem;
+            color: #444;
+        }
+
+        .tool-card li {
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-right: 5px;
+            margin-bottom: 8px;
+        }
+        .badge-iv { background: #e3f2fd; color: #1565c0; }
+        .badge-dv-con { background: #f3e5f5; color: #7b1fa2; }
+        .badge-dv-cat { background: #ffebee; color: #c62828; }
+        .badge-jamovi { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-flag-checkered fa-3x"></i>
+            <h2>STAT101A | Week 11</h2>
+            <small>Advanced & Capstone Prep</small>
+        </div>
+        <button class="nav-btn active" onclick="showPage('page1', this)"><i class="fa-solid fa-heart-pulse"></i> Survival Analysis</button>
+        <button class="nav-btn" onclick="showPage('page2', this)"><i class="fa-solid fa-layer-group"></i> MANOVA</button>
+        <button class="nav-btn" onclick="showPage('page3', this)"><i class="fa-solid fa-sitemap"></i> The Master Matrix</button>
+    </div>
+
+    <div class="main-content">
+        
+        <!-- Page 1: Survival Analysis -->
+        <div id="page1" class="page active">
+            <h1>Survival Analysis (Time-to-Event)</h1>
+            <p>Used extensively in veterinary oncology and epidemiology to track how long it takes for a specific event (e.g., relapse, death, recovery) to occur.</p>
+            <div class="matrix-grid">
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-chart-line"></i> Kaplan-Meier Curves</h3>
+                    <div>
+                        <span class="badge badge-iv">1 Time Variable (Continuous Days/Months)</span>
+                        <span class="badge badge-dv-cat">1 Status Variable (Binary: Censored vs. Event)</span>
+                    </div>
+                    <br>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-paw"></i> VETMED EXAMPLE:</h4>
+                        <p style="font-size: 0.9rem; margin-top: 0; color: #444;">Tracking the <strong>Time to Relapse (in days)</strong> for canines treated for lymphoma. Patients who withdraw from the study or outlive the study period are marked as "Censored" (0), while those who relapse are marked as the "Event" (1).</p>
+                    </div>
+                    <div class="warning-case">
+                        <h4><i class="fa-solid fa-gears"></i> JAMOVI EXECUTION:</h4>
+                        <ul>
+                            <li><em>Requires installing the <strong>jsurvival</strong> or <strong>ClinicoPath</strong> add-on module via the Jamovi Library.</em></li>
+                            <li>Navigate to the newly installed <strong>Survival</strong> menu.</li>
+                            <li>Elapsed Time: The continuous days/months column.</li>
+                            <li>Event Status: The binary 0/1 column.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 2: MANOVA -->
+        <div id="page2" class="page">
+            <h1>Multivariate ANOVA (MANOVA)</h1>
+            <p>What happens when you have more than one continuous outcome variable that you want to test simultaneously? Instead of running multiple ANOVAs (which increases the risk of false positives/Type I errors), you run one MANOVA.</p>
+            <div class="matrix-grid">
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-layer-group"></i> Multiple Continuous Outcomes</h3>
+                    <div>
+                        <span class="badge badge-iv">1 Categorical Grouping Variable (IV)</span>
+                        <span class="badge badge-dv-con">2+ Continuous Outcomes (DVs)</span>
+                    </div>
+                    <br>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-paw"></i> VETMED EXAMPLE:</h4>
+                        <p style="font-size: 0.9rem; margin-top: 0; color: #444;">Testing three different cattle diets (Supplement A, B, and C). Instead of just looking at Weight Gain, the team wants to simultaneously test both <strong>Weight Gain (kg)</strong> AND <strong>Milk Yield (Liters)</strong> as dual outcomes.</p>
+                    </div>
+                    <div class="warning-case">
+                        <h4><i class="fa-solid fa-gears"></i> JAMOVI EXECUTION:</h4>
+                        <ul>
+                            <li><strong>ANOVA > MANOVA</strong> (Available via base jamovi or the 'moretests' module).</li>
+                            <li>Dependent Variables: Move ALL continuous outcomes into this box.</li>
+                            <li>Grouping Variable: Move the categorical diet type here.</li>
+                            <li><strong>Interpretation:</strong> Check Pillai's Trace or Wilks' Lambda p-values. If significant, the diet affects the combined outcomes.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 3: Master Matrix (Capstone Prep) -->
+        <div id="page3" class="page">
+            <h1>The Master Matrix (Final Defense Prep)</h1>
+            <p>For your Weeks 12-13 Comprehensive Practical Defense, your success depends on identifying the correct statistical tool immediately upon seeing the clinical dataset. Memorize this logic tree.</p>
+            <div class="matrix-grid">
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-code-branch"></i> The Decision Tree</h3>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-arrow-right"></i> If testing DIFFERENCES (Groups):</h4>
+                        <ul>
+                            <li><strong>2 Groups, Continuous DV:</strong> Independent Samples T-Test (Parametric) or Mann-Whitney (Non-Parametric).</li>
+                            <li><strong>3+ Groups, Continuous DV:</strong> One-Way ANOVA (Parametric) or Kruskal-Wallis (Non-Parametric).</li>
+                            <li><strong>Same Subject Over Time:</strong> Paired T-Test (2 times) or Repeated Measures ANOVA (3+ times).</li>
+                            <li><strong>Categorical IV against Categorical DV:</strong> Chi-Square or Fisher's Exact (if expected counts &lt; 5).</li>
+                        </ul>
+                    </div>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-arrow-right"></i> If testing PREDICTIONS (Relationships):</h4>
+                        <ul>
+                            <li><strong>1 Continuous IV &rarr; 1 Continuous DV:</strong> Simple Linear Regression / Pearson Correlation.</li>
+                            <li><strong>2+ Continuous IVs &rarr; 1 Continuous DV:</strong> Multiple Linear Regression.</li>
+                            <li><strong>Any IV &rarr; 1 Binary Categorical DV (Yes/No):</strong> Binary Logistic Regression.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showPage(pageId, btnElement) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(pageId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+    </script>
+</body>
+</html>
