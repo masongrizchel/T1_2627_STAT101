@@ -1,1 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STAT101A | Week 12 Final Practical Defense</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #0A5C36; 
+            --light-green: #E8F5E9;
+            --accent-green: #2E7D32;
+            --danger-red: #C62828;
+            --white: #FFFFFF;
+            --text-dark: #1B3B2B;
+            --highlight-blue: #1565C0;
+            --highlight-orange: #E65100;
+        }
 
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-green);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 270px;
+            background-color: var(--primary-green);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 {
+            margin: 10px 0 0 0;
+            font-size: 1.2rem;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 5px solid transparent;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .nav-btn.active {
+            background-color: var(--white);
+            color: var(--primary-green);
+            border-left: 5px solid var(--accent-green);
+            font-weight: bold;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: var(--primary-green);
+            border-bottom: 2px solid var(--primary-green);
+            padding-bottom: 10px;
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        /* Matrix Cards */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tool-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--accent-green);
+        }
+
+        .tool-card h3 {
+            margin: 0 0 15px 0;
+            color: var(--primary-green);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .use-case {
+            margin-bottom: 15px;
+        }
+
+        .use-case h4 {
+            color: var(--accent-green);
+            margin: 0 0 5px 0;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .warning-case h4 {
+            color: var(--highlight-orange);
+            margin: 0 0 5px 0;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tool-card ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 0.9rem;
+            color: #444;
+        }
+
+        .tool-card li {
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .rubric-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: var(--white);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .rubric-table th, .rubric-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95rem;
+        }
+
+        .rubric-table th {
+            background-color: var(--primary-green);
+            color: var(--white);
+            font-weight: 600;
+        }
+        
+        .rubric-table tr:last-child td { border-bottom: none; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-graduation-cap fa-3x"></i>
+            <h2>STAT101A | Week 12</h2>
+            <small>Practical Defense</small>
+        </div>
+        <button class="nav-btn active" onclick="showPage('page1', this)"><i class="fa-solid fa-gavel"></i> Defense Mechanics</button>
+        <button class="nav-btn" onclick="showPage('page2', this)"><i class="fa-solid fa-star-half-stroke"></i> Grading Rubric</button>
+        <button class="nav-btn" onclick="showPage('page3', this)"><i class="fa-solid fa-file-medical"></i> Scenario Protocols</button>
+    </div>
+
+    <div class="main-content">
+        
+        <!-- Page 1: Defense Mechanics -->
+        <div id="page1" class="page active">
+            <h1>Final Practical Defense Mechanics</h1>
+            <p>Welcome to Week 12. This is the culmination of your biostatistics training. You will be acting as lead data analysts for a veterinary research hospital. You must execute and interpret clinical datasets live.</p>
+            <div class="matrix-grid">
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-clipboard-list"></i> Rules of Engagement</h3>
+                    <div class="use-case">
+                        <ul>
+                            <li><strong>Live Execution:</strong> You will be given a blinded VetMed dataset and a raw clinical question. You must use the Master Matrix to independently determine the correct statistical test.</li>
+                            <li><strong>Software Protocol:</strong> All analyses must be conducted live in Jamovi (v2.5+). You must demonstrate the correct placement of Dependent Variables, Independent Variables/Factors, and Covariates.</li>
+                            <li><strong>Assumption Checks:</strong> A model is invalid if assumptions are violated. You must vocally verify normality (Shapiro-Wilk), variance (Levene's), or collinearity (VIF) during your defense.</li>
+                            <li><strong>Time Limit:</strong> Each group has exactly 20 minutes to identify the test, execute it in Jamovi, and defend the clinical conclusion.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 2: Grading Rubric -->
+        <div id="page2" class="page">
+            <h1>Defense Grading Rubric</h1>
+            <p>Your final grade will be evaluated across three core competencies: Identification, Execution, and Translation.</p>
+            
+            <table class="rubric-table">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Competency</th>
+                        <th style="width: 50%;">Criteria for Full Marks</th>
+                        <th style="width: 25%;">Weight</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. Test Selection</strong></td>
+                        <td>Correctly identifies the dependent variable data type (Continuous vs. Categorical) and selects the mathematically appropriate statistical pathway from the Master Matrix.</td>
+                        <td><strong>30%</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. Jamovi Execution</strong></td>
+                        <td>Properly assigns variable measurement levels (Nominal, Ordinal, Continuous), checks appropriate assumptions (normality, variance, multicollinearity), and generates the required tables/plots without instructor intervention.</td>
+                        <td><strong>30%</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. APA Translation & Clinical Conclusion</strong></td>
+                        <td>Accurately interprets p-values, R², Odds Ratios, or F-statistics. Translates the raw numbers into a concise, clinically relevant APA 7th Edition summary that a non-statistician veterinarian could understand.</td>
+                        <td><strong>40%</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Page 3: Scenario Protocols -->
+        <div id="page3" class="page">
+            <h1>The Clinical Scenarios</h1>
+            <p>During the defense, your group will randomly draw one of the following scenario types. Prepare your analytical workflows for all of them.</p>
+            <div class="matrix-grid">
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-flask-vial"></i> Scenario Type A: Group Differences</h3>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-magnifying-glass"></i> Objective:</h4>
+                        <p style="font-size: 0.9rem; margin-top: 0; color: #444;">Determine if a new treatment is superior to a control group or an existing gold standard.</p>
+                        <ul>
+                            <li><strong>Likely Pathways:</strong> Independent T-Test, One-Way ANOVA, Kruskal-Wallis, ANCOVA.</li>
+                            <li><strong>Crucial Check:</strong> Verify Levene's Test for Equality of Variances before looking at the p-value.</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="tool-card">
+                    <h3><i class="fa-solid fa-chart-line"></i> Scenario Type B: Predictive Modeling</h3>
+                    <div class="use-case">
+                        <h4><i class="fa-solid fa-magnifying-glass"></i> Objective:</h4>
+                        <p style="font-size: 0.9rem; margin-top: 0; color: #444;">Forecast a clinical outcome based on compiling patient risk factors and biomarkers.</p>
+                        <ul>
+                            <li><strong>Likely Pathways:</strong> Multiple Linear Regression, Binary Logistic Regression.</li>
+                            <li><strong>Crucial Check:</strong> Identify if the outcome is a continuous measurement (Linear) or a binary Yes/No event (Logistic). Always check VIF for multicollinearity.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showPage(pageId, btnElement) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(pageId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+    </script>
+</body>
+</html>
